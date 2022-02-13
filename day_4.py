@@ -11,10 +11,11 @@ current_pose = Pose()
 
 def callback(data):
     global current_pose
-    current_pose  = data.pose.pose
+    current_pose = data.pose.pose
     print(current_pose)
 
-def main ():
+
+def main():
     global current_pose
     rospy.init_node('tutlebot_control', anonymous=True)
     pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
@@ -22,9 +23,10 @@ def main ():
 
     rospy.Subscriber("amcl_pose", PoseWithCovarianceStamped, callback)
 
-    rate = rospy.Rate(10) # 10hz
+    rate = rospy.Rate(10)  # 10hz
 
     stage = 0
+    count = 0
 
     while not rospy.is_shutdown():
         if stage == 0:
@@ -41,15 +43,22 @@ def main ():
             goalpose_msg.pose.orientation.w = 0.265455717752
 
             pub.publish(goalpose_msg)
-            stage = 1
+            if count == 2:
+                stage = 1
+            count += 1
         if stage == 1:
-            print(current_pose.position.x)
-            print(current_pose.position.y)
-            pass
+            delta_x = abs(current_pose.position.x -
+                          goalpose_msg.pose.position.x)
+            delta_y = abs(current_pose.position.y -
+                          goalpose_msg.pose.position.y)
+            if (delta_x < 0.10) and (delta_y < 0.10):
+                print("done")
+
         rate.sleep()
+
 
 if __name__ == '__main__':
     try:
-        main ()
+        main()
     except rospy.ROSInterruptException:
         pass
