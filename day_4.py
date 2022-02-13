@@ -43,8 +43,8 @@ def main ():
             pub.publish(goalpose_msg)
             stage = 1
         if stage == 1:
-            current_pose.position.x
-            current_pose.position.y
+            print(current_pose.position.x)
+            print(current_pose.position.y)
             pass
         rate.sleep()
 
